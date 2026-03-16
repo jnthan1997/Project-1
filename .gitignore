@@ -8,6 +8,7 @@ terraform/*.tfvars.json
 terraform/*.tfplan
 terraform/*.plan
 *.terraform
+.terraform.lock.hcl
 
 # Crash logs
 
