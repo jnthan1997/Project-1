@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learn Crypto - Login</title>
+    
+    <!-- Link to Google Fonts (Inter) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Link to your CSS file -->
+    <link rel="stylesheet" href="/public/styles.css">
+</head>
+<body>
+
+    <div class="dashboard">
+        
+        <!-- Left Column: Site Information -->
+        <div class="site-info">
+            <h1>Learn Crypto</h1>
+            <p>Master the world of cryptocurrency, one simple lesson at a time. Your journey to confident crypto trading in the Philippines starts here.</p>
+        </div>
+
+        <!-- Right Column: The Login Box -->
+        <div class="login-box">
+            <h2>Login</h2>
+            <form id="loginForm" action="/login" method="POST" >
+                <div class="input-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" placeholder="you@example.com" name="email" required>
+                </div>
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <div class="form-options">
+                    <a href="#" class="forgot-password">Forgot Password?</a>
+                </div>
+                <button type="submit" class="signin-btn">Sign In</button>
+            </form>
+            <div class="separator">
+                <hr>
+                <span>or</span>
+                <hr>
+            </div>
+            <p class="signup-link">Don't have an account?
+                 <a href="/signup">Sign Up here</a>
+            </p>
+        </div>
+
+    </div>
+ <script src="/public/script.js"></script>
+</body>
+</html>
