@@ -97,6 +97,8 @@ resource "aws_security_group_rule" "rds_ingress_lambda" {
   
 }
 
+
+
 resource "aws_security_group_rule" "rds_egress" {
     type = "egress"
     from_port = 0
