@@ -15,7 +15,7 @@ resource "aws_db_instance" "my_rds" {
     instance_class = "db.t3.micro"
     db_name = "mydatabase"
     username = "admin"
-    password = ""
+    password = ""   
     db_subnet_group_name = aws_db_subnet_group.rds_sub_group.name
     vpc_security_group_ids = [ aws_security_group.rds_sgroup.id ]
     publicly_accessible = false
@@ -26,8 +26,9 @@ resource "aws_db_instance" "my_rds" {
  #Zip and import the backend code to the lambda
 data "archive_file" "function_zip" {
     type = "zip"
-    source_dir = "${path.module}/../staticpage"
+    source_dir = "${path.module}/../backend"
     output_path = "${path.module}/app.zip"
+    excludes    = ["../backend/.env", "../backend/.git"]
   
 }
 
@@ -41,19 +42,20 @@ resource "aws_lambda_function" "backend_function" {
     filename = data.archive_file.function_zip.output_path
     source_code_hash = data.archive_file.function_zip.output_base64sha256
 
+    
+
     vpc_config {
       subnet_ids = [ aws_subnet.lambda_private_subnet1a.id, aws_subnet.lambda_private_subnet1b.id ]
       security_group_ids = [ aws_security_group.lambda_sgroup.id ]
     }
 
+    
     environment {
-        variables = {
-        DB_HOST     = ""
-        DB_USER     = ""
-        DB_PASSWORD = ""
-        DB_NAME     = ""
-        DB_PORT     = ""
-        JWT_SECRET  = ""
-        }
+      variables = ""
     }
+
+    depends_on = [
+    aws_iam_role_policy_attachment.lambda_vpc,
+    aws_iam_role_policy_attachment.lambda_logs
+  ]
 }

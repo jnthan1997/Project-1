@@ -1,3 +1,8 @@
 output "rds_endpint" {
     value = aws_db_instance.my_rds.endpoint
 }
+
+output "cd_endpoint" {
+    value = aws_cloudfront_distribution.serverless_cdn.domain_name
+  
+}

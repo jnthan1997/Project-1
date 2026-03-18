@@ -9,7 +9,7 @@ terraform/*.tfplan
 terraform/*.plan
 *.terraform
 .terraform.lock.hcl
-
+.env
 # Crash logs
 
 terraform/crash.log
@@ -28,3 +28,6 @@ terraform.rc
 
 .DS_Store
 Thumbs.db
+
+node_modules/
+*.json
