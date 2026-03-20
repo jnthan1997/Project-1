@@ -9,6 +9,6 @@ terraform {
 }
 
 provider "aws" {
-    profile = "default"
+    profile = "homeprofile1"
     region = "ap-southeast-1"
 }

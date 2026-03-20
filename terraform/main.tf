@@ -87,12 +87,31 @@ resource "aws_security_group_rule" "lambda_egress_rds" {
   
 }
 
+resource "aws_security_group_rule" "lambda_general_egress" {
+    type              = "egress"
+    from_port         = 0
+    to_port           = 0
+    protocol          = "-1"
+    cidr_blocks       = ["0.0.0.0/0"]
+    security_group_id = aws_security_group.lambda_sgroup.id
+}
+
 resource "aws_security_group_rule" "rds_ingress_lambda" {
     type = "ingress"
     from_port = 3306
     to_port = 3306
     security_group_id = aws_security_group.rds_sgroup.id
     source_security_group_id = aws_security_group.lambda_sgroup.id
+    protocol = "tcp"
+  
+}
+
+resource "aws_security_group_rule" "rds_ingress_bastion" {
+    type = "ingress"
+    from_port = 3306
+    to_port = 3306
+    security_group_id = aws_security_group.rds_sgroup.id
+    source_security_group_id = aws_security_group.bastion_sg.id
     protocol = "tcp"
   
 }
@@ -106,4 +125,45 @@ resource "aws_security_group_rule" "rds_egress" {
     protocol = "-1"
     security_group_id = aws_security_group.rds_sgroup.id
     cidr_blocks = [ "0.0.0.0/0" ]
+}
+
+#### Security Group for the Bastion host
+resource "aws_security_group" "bastion_sg" {
+    vpc_id = aws_vpc.serverless_vpc.id
+    name = "Bastion-Security" 
+}
+
+resource "aws_security_group_rule" "bastion_sg_rule" {
+    type = "ingress"
+    from_port = 22
+    to_port = 22
+    protocol = "TCP"
+    cidr_blocks = ["0.0.0.0/0" ]
+    security_group_id = aws_security_group.bastion_sg.id
+}
+
+resource "aws_security_group_rule" "bastion_sg_egress" {
+    type = "egress"
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    cidr_blocks = [ "0.0.0.0/0" ]
+    security_group_id = aws_security_group.bastion_sg.id
+  
+}
+
+resource "aws_route_table" "bastion_rt" {
+    vpc_id = aws_vpc.serverless_vpc.id
+    route  {
+        cidr_block = "0.0.0.0/0"
+        gateway_id = aws_internet_gateway.vpc_gateway.id
+    }  
+    tags = {
+      Name = "Route table for bastion host"
+    }
+}
+
+resource "aws_route_table_association" "bastion_rt_assoc" {
+    subnet_id = aws_subnet.bastion_host.id
+    route_table_id = aws_route_table.bastion_rt.id  
 }

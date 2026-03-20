@@ -1,6 +1,6 @@
 #S3 Bucket
 resource "aws_s3_bucket" "static_bucket" {
-    bucket = "project-1-serverless-bucket"
+    bucket = "my-project-1-serverless-bucket-saa"
 }
 
 #S3 bucket blocking policy
@@ -37,7 +37,7 @@ resource "aws_apigatewayv2_integration" "lambda_integration" {
 
 resource "aws_apigatewayv2_route" "proxy" {
     api_id = aws_apigatewayv2_api.api_gate.id
-    route_key = "ANY / {proxy+}" #Captures all paths
+    route_key = "ANY /{proxy+}" #Captures all paths
     target = "integrations/${aws_apigatewayv2_integration.lambda_integration.id}"  
 }
 

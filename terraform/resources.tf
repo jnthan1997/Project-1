@@ -51,11 +51,31 @@ resource "aws_lambda_function" "backend_function" {
 
     
     environment {
-      variables = ""
+      variables = {
+          
+      DB_HOST     = aws_db_instance.my_rds.address
+      DB_USER     = "admin"
+      DB_PASSWORD = ""
+      DB_NAME     = "mydatabase"
+      DB_PORT     = "3306"
+      JWT_SECRET  = ""
+    }
+      
     }
 
     depends_on = [
     aws_iam_role_policy_attachment.lambda_vpc,
     aws_iam_role_policy_attachment.lambda_logs
   ]
+}
+
+##### BASTION HOST(JUMP SERVER)
+
+resource "aws_instance" "bastion_ec2" {
+  ami = "ami-01938df366ac2d954"
+  instance_type = "t2.micro"
+  subnet_id = aws_subnet.bastion_host.id
+  vpc_security_group_ids = [ aws_security_group.bastion_sg.id ]
+  key_name = ""
+  
 }
