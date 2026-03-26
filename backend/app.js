@@ -141,8 +141,9 @@ app.get("/signup", (req,res) => {
 
 
 app.post("/register", (req, res) => {
-    console.log(req.body);
 
+    console.log(`Registration attempt for email: ${req.body.email}`);
+    
     const first_name = req.body.fname;
     const last_name = req.body.lastname;
     const email = req.body.email;

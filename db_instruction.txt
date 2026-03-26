@@ -1,0 +1,34 @@
+#install sql
+sudo apt install mysql-server
+
+connect db through jumphost
+mysql -h #endpoint here -P 3306 -u admin -p
+
+change database
+use #db_name
+
+show table
+show tables;
+
+create table
+
+CREATE TABLE user (
+    id INT NOT NULL AUTO_INCREMENT,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    PRIMARY KEY (id)
+);
+
+##table for user_transaction
+CREATE TABLE user_transactions (
+    ->     id INT AUTO_INCREMENT PRIMARY KEY,
+    ->     user_id INT NOT NULL,
+    ->     amount DECIMAL(18, 8) NOT NULL,
+    ->     type ENUM('BUY', 'SELL', 'DEPOSIT') NOT NULL,
+    ->     currency VARCHAR(10) DEFAULT 'BTC',
+    ->     status VARCHAR(20) DEFAULT 'completed',
+    ->     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ->     FOREIGN KEY (user_id) REFERENCES user(id)
+    -> );

@@ -28,7 +28,12 @@ data "archive_file" "function_zip" {
     type = "zip"
     source_dir = "${path.module}/../backend"
     output_path = "${path.module}/app.zip"
-    excludes    = ["../backend/.env", "../backend/.git"]
+   excludes    = [
+      ".env", 
+      ".git", 
+      "tests", 
+      "README.md"
+    ]
   
 }
 
