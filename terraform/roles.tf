@@ -18,6 +18,30 @@ resource "aws_iam_role_policy_attachment" "lambda_vpc" {
 
 }
 
+## Allow Lambda to access Secret Manager
+
+resource "aws_iam_policy" "lambda_secret" {
+    name = "Lambda-Read-Secrets"
+    
+    policy = jsonencode({
+        Version = "2012-10-17"
+        Statement = [
+            {
+                Effect = "Allow"
+                Action = "secretsManager:GetSecretValue"
+                Resource = aws_secretsmanager_secret.project_secrets.arn
+            }
+        ]
+    })
+}
+
+##Attach API role for secret
+resource "aws_iam_role_policy_attachment" "attach_secret" {
+  role = aws_iam_role.lambdabackend_role.name
+  policy_arn = aws_iam_policy.lambda_secret.arn
+
+}
+
 ##Integrate Lambda to API gateway
 
 resource "aws_lambda_permission" "lambda_api" {
@@ -60,3 +84,12 @@ resource "aws_s3_bucket_policy" "allow_cdn_to_s3" {
   policy = data.aws_iam_policy_document.cdn_policy.json
 }
 
+
+##data for secrets to db
+data "aws_secretsmanager_secret_version" "db_secret" {
+    secret_id = aws_secretsmanager_secret.project_secrets.id
+}
+
+locals {
+  db_cred = jsondecode(data.aws_secretsmanager_secret_version.db_secret.secret_string)
+}

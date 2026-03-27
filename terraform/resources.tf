@@ -14,8 +14,8 @@ resource "aws_db_instance" "my_rds" {
     engine_version = "8.0"
     instance_class = "db.t3.micro"
     db_name = "mydatabase"
-    username = "admin"
-    password = ""   
+    username = ""
+    password = ""
     db_subnet_group_name = aws_db_subnet_group.rds_sub_group.name
     vpc_security_group_ids = [ aws_security_group.rds_sgroup.id ]
     publicly_accessible = false
@@ -57,13 +57,9 @@ resource "aws_lambda_function" "backend_function" {
     
     environment {
       variables = {
-          
-      DB_HOST     = aws_db_instance.my_rds.address
-      DB_USER     = "admin"
-      DB_PASSWORD = ""
-      DB_NAME     = "mydatabase"
+      SECRET_ARN = aws_secretsmanager_secret.project_secrets.arn
       DB_PORT     = "3306"
-      JWT_SECRET  = ""
+
     }
       
     }

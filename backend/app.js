@@ -16,7 +16,7 @@ const cookie = require('cookie-parser');
 
 /** connecting backend to db  create pool to avoid cold start as 
  * lamda create instances pooling prevent failure
-*/
+
 const db = sql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -25,10 +25,44 @@ const db = sql.createPool({
   port: Number(process.env.DB_PORT),
   connectionLimit: 5
 });
+*/
 
 
+const AWS = require("aws-sdk");
+const secretsManager = new AWS.SecretsManager();
 
+// Load .env only locally
+if (process.env.IS_OFFLINE) {
+  dotenv.config({ path: './.env' });
+}
 
+/** CACHE (VERY IMPORTANT FOR LAMBDA) */
+let db;
+let cachedSecret;
+
+/** 🔥 GET DB CONNECTION USING SECRETS MANAGER */
+async function getDB() {
+  if (db) return db;
+
+  if (!cachedSecret) {
+    const secretData = await secretsManager.getSecretValue({
+      SecretId: process.env.SECRET_ARN
+    }).promise();
+
+    cachedSecret = JSON.parse(secretData.SecretString);
+  }
+
+  db = sql.createPool({
+    host: cachedSecret.DB_HOST,
+    user: cachedSecret.DB_USER,
+    password: cachedSecret.DB_PASSWORD,
+    database: cachedSecret.DB_NAME,
+    port: Number(process.env.DB_PORT),
+    connectionLimit: 5
+  });
+
+  return db;
+}
 
 
 
@@ -58,7 +92,9 @@ app.get('/login',(req,res) => {
 });
 
 
-app.post("/login", (req, res) => {
+app.post("/login", async (req, res) => {
+
+    const db = await getDB();
     
     const email = req.body.email;
     const password = req.body.password;
@@ -89,7 +125,7 @@ app.post("/login", (req, res) => {
         // generate JWT
      const token = jwt.sign(
     { id: user.id, email: user.email, first_name: user.first_name, last_name: user.last_name },
-    process.env.JWT_SECRET,
+    cachedSecret.JWT_SECRET,
     { expiresIn: "1h" }
 );
 
@@ -117,7 +153,7 @@ function isAuthenticated(req, res, next) {
     }
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token, cachedSecret.JWT_SECRET);
         req.user = decoded;
         next();
     } catch (err) {
@@ -140,8 +176,9 @@ app.get("/signup", (req,res) => {
 })
 
 
-app.post("/register", (req, res) => {
+app.post("/register", async (req, res) => {
 
+    const db = await getDB();
     console.log(`Registration attempt for email: ${req.body.email}`);
     
     const first_name = req.body.fname;
@@ -201,7 +238,8 @@ app.post("/register", (req, res) => {
 });
 
 
-app.post("/generate-transaction", isAuthenticated, (req, res) => {
+app.post("/generate-transaction", isAuthenticated, async (req, res) => {
+    const db = await getDB();
     const userId = req.user.id; 
     const amount = (Math.random() * 0.5).toFixed(8); 
     const types = ['BUY', 'SELL', 'DEPOSIT'];

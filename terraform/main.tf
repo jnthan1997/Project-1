@@ -152,6 +152,19 @@ resource "aws_security_group_rule" "bastion_sg_egress" {
   
 }
 
+###VPC Endpoint SG to allow lambda to connect to Secret Manager
+resource "aws_security_group" "vpc_endpoint_sg" {
+  name   = "secrets-manager-endpoint-sg"
+  vpc_id = aws_vpc.serverless_vpc.id
+
+  ingress {
+    from_port       = 443
+    to_port         = 443
+    protocol        = "tcp"
+    security_groups = [aws_security_group.lambda_sgroup.id]
+  }
+}
+
 resource "aws_route_table" "bastion_rt" {
     vpc_id = aws_vpc.serverless_vpc.id
     route  {
